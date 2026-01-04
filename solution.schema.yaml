@@ -1,0 +1,34 @@
+
+solutionId: solution-X
+description: Example solution
+
+tools:
+  service-a:
+    description: サービスA
+    lines:
+      - id: a1
+        resources:
+          config:
+            file: setting/config_a1.json
+            mediaType: application/json
+
+      - id: a2
+        resources:
+          config:
+            file: setting/config_a2.json
+            mediaType: application/json
+
+  service-b:
+    description: サービスB
+    lines:
+      - id: b1
+        resources:
+          config:
+            file: setting/config_b1.json
+            mediaType: application/json
+
+      - id: b2
+        resources:
+          config:
+            file: setting/config_b2.json
+            mediaType: application/json

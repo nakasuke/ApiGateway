@@ -1,0 +1,42 @@
+
+openapi: 3.0.3
+info:
+  title: MCP-compatible Microservice Gateway API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /solutions:
+    get:
+      summary: ソリューション一覧取得
+      responses:
+        '200':
+          description: OK
+
+  /solutions/{solutionId}:
+    get:
+      summary: ソリューション詳細取得
+      parameters:
+        - name: solutionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+  /tools:
+    get:
+      summary: MCPツール一覧取得
+      responses:
+        '200':
+          description: OK
+
+  /contexts:
+    post:
+      summary: コンテキスト生成
+      responses:
+        '200':
+          description: OK

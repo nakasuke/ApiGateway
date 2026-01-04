@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "80:80"
+    networks:
+      - gateway-net
+    depends_on:
+      - service-a
+      - service-b
+
+  service-a:
+    build: ./service_a
+    networks:
+      - gateway-net
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+
+  service-b:
+    build: ./service_b
+    networks:
+      - gateway-net
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+
+networks:
+  gateway-net:
+    driver: bridge
