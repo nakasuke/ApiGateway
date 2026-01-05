@@ -1,8 +1,11 @@
-
 openapi: 3.0.3
 info:
   title: MCP-compatible Microservice Gateway API
   version: 1.0.0
+  description: >
+    MCP Server への将来移行を前提とした
+    マイクロサービス・ゲートウェイの最終API仕様。
+
 servers:
   - url: http://localhost:8080
 
@@ -12,7 +15,15 @@ paths:
       summary: ソリューション一覧取得
       responses:
         '200':
-          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  solutions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SolutionSummary'
 
   /solutions/{solutionId}:
     get:
@@ -25,18 +36,227 @@ paths:
             type: string
       responses:
         '200':
-          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
 
   /tools:
     get:
       summary: MCPツール一覧取得
       responses:
         '200':
-          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tools:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/McpTool'
+
+  /tools/{toolName}/lines:
+    get:
+      summary: MCPツールの系統一覧と状態取得
+      parameters:
+        - name: toolName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lines:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceLine'
+
+  /tools/{toolName}/lines/{lineId}/resources/{resourceId}:
+    get:
+      summary: MCPリソース取得（content直接返却）
+      parameters:
+        - name: toolName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: lineId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpResource'
+
+    post:
+      summary: MCPリソース登録・更新
+      parameters:
+        - name: toolName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: lineId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpResourceRegistration'
+      responses:
+        '200':
+          description: 登録完了
 
   /contexts:
     post:
-      summary: コンテキスト生成
+      summary: コンテキスト生成（実行開始）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContextCreation'
       responses:
         '200':
-          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Context'
+
+  /contexts/{contextId}:
+    get:
+      summary: コンテキスト状態取得
+      parameters:
+        - name: contextId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Context'
+
+components:
+  schemas:
+    SolutionSummary:
+      type: object
+      properties:
+        solutionId:
+          type: string
+        description:
+          type: string
+
+    Solution:
+      type: object
+      properties:
+        solutionId:
+          type: string
+        description:
+          type: string
+        tools:
+          type: array
+          items:
+            $ref: '#/components/schemas/SolutionTool'
+
+    SolutionTool:
+      type: object
+      properties:
+        toolName:
+          type: string
+        lines:
+          type: array
+          items:
+            type: string
+
+    McpTool:
+      type: object
+      properties:
+        toolName:
+          type: string
+        version:
+          type: string
+
+    ServiceLine:
+      type: object
+      properties:
+        lineId:
+          type: string
+        status:
+          type: string
+          enum: [idle, running]
+
+    McpResource:
+      type: object
+      properties:
+        toolName:
+          type: string
+        lineId:
+          type: string
+        resourceId:
+          type: string
+        mediaType:
+          type: string
+        content:
+          type: string
+
+    McpResourceRegistration:
+      type: object
+      required: [mediaType, content]
+      properties:
+        mediaType:
+          type: string
+        content:
+          type: string
+
+    ContextCreation:
+      type: object
+      required: [solutionId, toolName, lineId]
+      properties:
+        solutionId:
+          type: string
+        toolName:
+          type: string
+        lineId:
+          type: string
+
+    Context:
+      type: object
+      properties:
+        contextId:
+          type: string
+        solutionId:
+          type: string
+        toolName:
+          type: string
+        lineId:
+          type: string
+        status:
+          type: string
+          enum: [running, finished, failed]
